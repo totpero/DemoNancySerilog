@@ -11,8 +11,6 @@ namespace DemoNancySerilog.Modules
     {
         public HomeModule(IRootPathProvider pathProvider)
         {
-            Before += ctx => !ctx.Request.Files.Any() ? new TextResponse(HttpStatusCode.BadRequest, "Not Found") : null;
-
             Get["/"] = _ => new TextResponse(HttpStatusCode.BadRequest, "Not Found");
 
             Post["/sync"] = x =>
@@ -22,9 +20,10 @@ namespace DemoNancySerilog.Modules
                 if (file == null) return Response.AsText("error");
                 try
                 {
-                    using (var output = new FileStream(@"D:\MyOutput.zip", FileMode.Create))
+                    using (var reader = new StreamReader(file.Value))
                     {
-                        file.Value.CopyTo(output);
+                        var fileContent = reader.ReadToEnd();
+                        return Response.AsText($"File Contents: \n{fileContent}");
                     }
 
                 }
